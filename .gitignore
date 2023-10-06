@@ -1,0 +1,10 @@
+target/
+build/
+node_modules/
+__pycache__/
+venv/
+
+.idea/
+.DS_Store
+*.iml
+

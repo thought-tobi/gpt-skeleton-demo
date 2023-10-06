@@ -1,0 +1,11 @@
+.email-content {
+  width: 100%;
+  max-width: 800px;
+  font-family: monospace;
+  font-size: 16px;
+  margin: 0 auto;
+  word-wrap: break-word;
+  text-align: left;
+  padding: 20px;
+  white-space: pre-wrap;
+}
