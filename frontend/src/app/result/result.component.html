@@ -1,5 +1,22 @@
-<div class="container">
-  <div class="email-content">
-    {{ response!.original_email }}
-  </div>
+<div class="email-content">
+  <ng-container *ngFor="let sentence of splitSentences(original_email)">
+    <ng-container *ngIf="getSuggestion(sentence); else noSuggestion">
+      <span class="strike-through">{{ sentence }}</span>
+      <span class="suggestion">{{ getSuggestion(sentence).improved_sentence }}</span>
+    </ng-container>
+    <ng-template #noSuggestion>
+      {{ sentence }}
+    </ng-template>
+  </ng-container>
 </div>
+
+<style>
+  .strike-through {
+    text-decoration: line-through;
+    color: red;
+  }
+  .suggestion {
+    margin-left: 10px;
+    color: green;
+  }
+</style>

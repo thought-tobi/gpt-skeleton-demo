@@ -51,5 +51,5 @@ class TestBenchmark(TestCase):
                     logging.warning(f"Original sentence not in email: {suggestion}")
                     self.errors["content_errors"] = self.errors["content_errors"] + 1
 
-        self.assertLessEqual(self.errors["content_errors"], 2)
+        self.assertLessEqual(self.errors["content_errors"], 0)
 
