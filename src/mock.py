@@ -14,6 +14,11 @@ app = Flask(__name__)
 CORS(app)
 
 
+@app.route('/check', methods=['OPTIONS'])
+def login():
+    return jsonify({"msg": "all good!"}), 200
+
+
 @app.route('/check', methods=['POST'])
 def check_email():
     return jsonify({

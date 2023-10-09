@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {lastValueFrom} from "rxjs";
 
@@ -14,7 +14,8 @@ export class InputComponent {
   inputDone: boolean = false;
   response: any | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+  }
 
   async checkEmail() {
     this.inputDone = true;
@@ -25,7 +26,12 @@ export class InputComponent {
     const backend = 'http://localhost:5000/check';
     const data = btoa(email)
     console.log(data)
-    const response$ = this.http.post(backend, data);
+    const response$ = this.http.post(backend, data, {
+      headers:
+        {
+          'Content-Type': 'application/json',
+        }
+    });
     this.response = await lastValueFrom(response$)
   }
 }

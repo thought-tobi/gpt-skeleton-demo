@@ -1,21 +1,23 @@
 <div class="email-content">
-  <ng-container *ngFor="let sentence of splitSentences(original_email)">
-    <ng-container *ngIf="getSuggestion(sentence); else noSuggestion">
-      <span class="strike-through">{{ sentence }}</span>
-      <span class="suggestion">{{ getSuggestion(sentence).improved_sentence }}</span>
-    </ng-container>
-    <ng-template #noSuggestion>
-      {{ sentence }}
-    </ng-template>
-  </ng-container>
+  <div *ngFor="let line of formattedEmail">
+    <span *ngFor="let word of line; let i = index" [ngClass]="{
+      'added': word.type === 'added',
+      'removed': word.type === 'removed',
+      'unchanged': word.type === 'unchanged'
+    }">{{ word.value }}
+      <ng-container *ngIf="i < line.length - 1 && line[i+1].type !== 'removed'">&#32;</ng-container>
+    </span>
+    <br>
+  </div>
 </div>
 
 <style>
-  .strike-through {
+  .removed {
     text-decoration: line-through;
     color: red;
   }
-  .suggestion {
+
+  .added {
     margin-left: 10px;
     color: green;
   }
