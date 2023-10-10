@@ -1,4 +1,3 @@
-import base64
 import logging
 import os
 
@@ -6,8 +5,7 @@ import openai
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
-import client
+from celebrities import get_celebrities_response
 
 # setup
 load_dotenv()
@@ -20,12 +18,9 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/check', methods=['POST'])
-def check_email():
-    email = request.stream.read()
-    logging.info(f"Received sentence: {email}")
-    if not email:
-        return jsonify({'error': 'No email provided'}), 400
-    email = base64.b64decode(email).decode('utf-8')
-    logging.info(f"Decoded email: {email}")
-    return client.check_email(email)
+@app.route('/celebrities', methods=['POST'])
+def get_celebrity_response():
+    celebrity_name = request.json['celebrity_name']
+    prompt = request.json['prompt']
+    logging.info(f"Getting response for prompt {prompt} in the style of {celebrity_name} ...")
+    return jsonify(get_celebrities_response(celebrity_name, prompt).as_dict()), 200

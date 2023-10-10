@@ -1,0 +1,9 @@
+POST http://localhost:5000/celebrities
+Content-Type: application/json
+
+{
+  "celebrity_name": "Donald Trump",
+  "prompt": "Declare war on North Korea."
+}
+
+###

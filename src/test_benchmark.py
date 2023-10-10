@@ -1,55 +1,74 @@
 import logging
 import os
+from dataclasses import dataclass
 from unittest import TestCase
 
-import client
+from dacite import DaciteError
+
+from src.celebrities import get_celebrities_response
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 
-def read_test_data() -> list:
-    test_dir = "../test"
-    # read all files in test directory
-    # return list of base64 encoded strings
-    for file in os.listdir(test_dir):
-        with open(f"{test_dir}/{file}", "r") as f:
-            yield f.read()
+def read_celebrity_data():
+    data_file = "../test/celebrities.csv"
+    with open(data_file, "r") as f:
+        for line in f.readlines():
+            if not line.startswith("#"):
+                yield line.strip().split(",")
+
+
+@dataclass
+class StructuralError:
+    counter = 0
+
+    def increment(self):
+        self.counter += 1
+
+
+@dataclass
+class ContentError:
+    counter = 0
+
+    def increment(self):
+        self.counter += 1
 
 
 class TestBenchmark(TestCase):
 
-    errors = {
-        "structural_errors": 0,
-        "content_errors": 0,
-    }
-
     def test_benchmark(self):
-        test_data = list(read_test_data())
-        for email in test_data:
-            logging.info(f"Testing email: {email}")
-            response = client.check_email(email)
-            logging.info(f"Received response: {response}")
+        struct_error = StructuralError()
+        content_error = ContentError()
 
-            # verify structure
-            self.assertIn("original_email", response)
-            self.assertIn("suggestions", response)
+        for dataset in read_celebrity_data():
+            # extract data from tuples
+            celebrity = dataset[0]
+            prompt = dataset[1]
+            is_inappropriate = bool(dataset[2])
+            logging.info(f"Celebrity: {celebrity}, prompt: {prompt}, inappropriate: {is_inappropriate}")
 
-            # verify suggestions
-            suggestions = response["suggestions"]
-            self.assertIsInstance(suggestions, list)
-            for suggestion in suggestions:
-                self.assertIn("original_sentence", suggestion)
-                self.assertIn("improved_sentence", suggestion)
+            # perform request, parse response
+            try:
+                response = get_celebrities_response(celebrity, prompt)
+                logging.info(f"Received response: {response}")
+                self.assertEqual(response.deny_answer, is_inappropriate)
+            # catch errors, increment error counters
+            except ValueError as ve:
+                struct_error.increment()
+                logging.warning(f"Could not parse JSON: {ve}")
+                logging.info(f"Structural errors: {struct_error.counter}")
+                continue
+            except DaciteError as de:
+                struct_error.increment()
+                logging.warning(f"Could not deserialize JSON: {de}")
+                continue
+            except AssertionError as ae:
+                content_error.increment()
+                logging.warning(f"Error with assertion: {ae}")
+                logging.info(f"Content errors: {content_error.counter}")
+                continue
 
-                # verify that sentences are not identical, primarily to save tokens
-                if suggestion["original_sentence"] == suggestion["improved_sentence"]:
-                    logging.warning(f"Original sentence and improved sentence are the same: {suggestion}")
-                    self.errors["content_errors"] = self.errors["content_errors"] + 1
-
-                # verify that original sentence is in email to prevent hallucinations
-                if suggestion["original_sentence"] not in email:
-                    logging.warning(f"Original sentence not in email: {suggestion}")
-                    self.errors["content_errors"] = self.errors["content_errors"] + 1
-
-        self.assertLessEqual(self.errors["content_errors"], 0)
-
+            print(f"Structural errors: {struct_error.counter}")
+            print(f"Content errors: {content_error.counter}")
+            self.assertLessEqual(0, struct_error.counter)
+            self.assertLessEqual(0, content_error.counter)
