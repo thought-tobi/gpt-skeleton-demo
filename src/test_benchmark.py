@@ -4,12 +4,10 @@ import time
 from dataclasses import dataclass
 from unittest import TestCase
 
-from dacite import DaciteError
-
-from src.celebrities import get_celebrities_response
-from src.literal_translations import get_literal_translation
-from src.translation import get_translation_and_source_language
-from src.util.error import StructuralError
+from celebrities import get_celebrities_response
+from literal_translations import get_literal_translation
+from translation import get_translation_and_source_language
+from util.error import StructuralError
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 

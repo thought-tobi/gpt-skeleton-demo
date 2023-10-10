@@ -6,9 +6,9 @@ from json import JSONDecodeError
 import dacite
 from dacite import DaciteError
 
-from src.util.decorators import timed
-from src.util.error import StructuralError
-from src.util.message import Message, USER
+from util.decorators import timed
+from util.error import StructuralError
+from util.message import Message, USER
 from util.client import exchange
 
 SYSTEM_PROMPT = """Translate the following sentence into English and identify the source language.
@@ -31,8 +31,8 @@ class Translation:
 @timed
 def get_translation_and_source_language(sentence: str) -> Translation:
     messages = [Message(role=USER, content=SYSTEM_PROMPT + sentence)]
-    response = exchange(messages)
-    return parse_response(response)
+    openai_response = exchange(messages)
+    return parse_response(openai_response.response)
 
 
 def parse_response(response: str) -> Translation:

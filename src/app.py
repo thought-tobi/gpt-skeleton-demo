@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from celebrities import get_celebrities_response
+from translation import get_translation_and_source_language
 
 # setup
 load_dotenv()
@@ -24,3 +25,10 @@ def get_celebrity_response():
     prompt = request.json['prompt']
     logging.info(f"Getting response for prompt {prompt} in the style of {celebrity_name} ...")
     return jsonify(get_celebrities_response(celebrity_name, prompt).as_dict()), 200
+
+
+@app.route('/translation', methods=['POST'])
+def get_translation():
+    sentence = request.json['sentence']
+    logging.info(f"Getting translation for sentence '{sentence}'")
+    return jsonify(get_translation_and_source_language(sentence)), 200

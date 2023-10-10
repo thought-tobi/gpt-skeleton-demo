@@ -7,3 +7,12 @@ Content-Type: application/json
 }
 
 ###
+
+POST http://localhost:5000/translation
+Content-Type: application/json
+
+{
+  "sentence": "Der rote Fuchs springt über den faulen Hund."
+}
+
+###

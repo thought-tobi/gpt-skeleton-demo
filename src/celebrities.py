@@ -5,7 +5,7 @@ from json import JSONDecodeError
 from dacite import DaciteError
 
 import util.client as openai_client
-from src.util.error import StructuralError
+from util.error import StructuralError
 from util.decorators import timed
 from util.message import USER, Message, SYSTEM
 import dacite
@@ -36,7 +36,7 @@ def get_celebrities_response(celebrity_name: str, prompt: str) -> Response:
     messages = [Message(role=SYSTEM, content=SYSTEM_PROMPT),
                 Message(role=USER, content=USER_PROMPT.format(celebrity_name, prompt))]
     openai_response = openai_client.exchange(messages)
-    return parse_response(openai_response)
+    return parse_response(openai_response.response)
 
 
 def parse_response(response: str) -> Response:

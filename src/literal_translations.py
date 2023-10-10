@@ -6,11 +6,10 @@ from json import JSONDecodeError
 import dacite
 from dacite import DaciteError
 
-from src.util.decorators import timed
-from src.util.error import StructuralError
-from src.util.message import Message, USER, SYSTEM
+from util.decorators import timed
+from util.error import StructuralError
+from util.message import Message, USER, SYSTEM
 from util.client import exchange
-import logging
 
 SYSTEM_PROMPT = """Provide literal translations for words in the context of a sentence.
 You will receive a JSON with a sentence and one or multiple words, and provide a response in the following structure:
@@ -64,8 +63,8 @@ def generate_literal_translation_for_chunk(sentence: str, chunk: list[str]) -> l
     messages = [Message(role=SYSTEM, content=SYSTEM_PROMPT),
                 Message(role=USER, content=
                 "Translate the word(s) '{}' in the context of the following sentence: '{}'.".format(chunk, sentence))]
-    response = exchange(messages)
-    return parse_response(response)
+    openai_response = exchange(messages)
+    return parse_response(openai_response.response)
 
 
 def parse_response(response: str) -> list[Word]:
