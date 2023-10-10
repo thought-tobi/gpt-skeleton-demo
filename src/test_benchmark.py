@@ -8,6 +8,7 @@ from dacite import DaciteError
 
 from src.celebrities import get_celebrities_response
 from src.literal_translations import get_literal_translation
+from src.translation import get_translation_and_source_language
 from src.util.error import StructuralError
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -59,10 +60,7 @@ class TestBenchmark(TestCase):
                 logging.warning(f"Error with assertion: {ae} in response {response}")
                 continue
 
-        print(f"Structural accuracy: {100 - (struct_error.counter / size * 100)}%")
-        print(f"Content accuracy: {100 - (content_error.counter / size * 100)}%")
-        self.assertLessEqual(0, struct_error.counter)
-        self.assertLessEqual(0, content_error.counter)
+        self.evaluate(content_error, struct_error, size)
 
     def test_benchmark_literal_translations(self):
         struct_error = StructuralErrorCounter()
@@ -70,7 +68,8 @@ class TestBenchmark(TestCase):
 
         size = 4
 
-        for sentence in read_literal_translation_data():
+        for line in read_translation_data():
+            sentence = line[0]
             logging.info(f"Sentence: {sentence}")
 
             # perform request, parse response
@@ -88,6 +87,37 @@ class TestBenchmark(TestCase):
                 logging.warning(f"Error with assertion: {ae} in response {response}")
                 continue
 
+        self.evaluate(content_error, struct_error, size)
+
+    def test_benchmark_translation_and_language_recognition(self):
+        struct_error = StructuralErrorCounter()
+        content_error = ContentErrorCounter()
+
+        size = 4
+
+        for line in read_translation_data():
+            sentence = line[0]
+            language = line[1]
+            logging.info(f"Sentence: {sentence}, language: {language}")
+
+            # perform request, parse response
+            try:
+                response = get_translation_and_source_language(sentence)
+                self.assertEqual(response.language.lower(), language.lower())
+                logging.info(f"Response: {response}")
+            # catch errors, increment error counters
+            except StructuralError as se:
+                struct_error.increment()
+                logging.warning(f"Structural error: {se.response}")
+                continue
+            except AssertionError as ae:
+                content_error.increment()
+                logging.warning(f"Error with assertion: {ae} in response {response}")
+                continue
+
+        self.evaluate(content_error, struct_error, size)
+
+    def evaluate(self, content_error, struct_error, size):
         time.sleep(1)
         print(f"Structural accuracy: {100 - (struct_error.counter / size * 100)}%")
         print(f"Content accuracy: {100 - (content_error.counter / size * 100)}%")
@@ -103,11 +133,11 @@ def read_celebrity_data():
                 yield line.strip().split(";")
 
 
-def read_literal_translation_data():
-    data_file = "../test/literal_translation.csv"
+def read_translation_data():
+    data_file = "../test/translation.csv"
     with open(data_file, "r") as f:
         for line in f.readlines():
-            yield line.strip()
+            yield line.strip().split(";")
 
 
 def parse_bool(string: str) -> bool:

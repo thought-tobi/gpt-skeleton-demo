@@ -1,10 +1,13 @@
 import concurrent
 import json
 from dataclasses import dataclass, field
+from json import JSONDecodeError
 
 import dacite
+from dacite import DaciteError
 
 from src.util.decorators import timed
+from src.util.error import StructuralError
 from src.util.message import Message, USER, SYSTEM
 from util.client import exchange
 import logging
@@ -66,5 +69,8 @@ def generate_literal_translation_for_chunk(sentence: str, chunk: list[str]) -> l
 
 
 def parse_response(response: str) -> list[Word]:
-    parsed = json.loads(response)
-    return [dacite.from_dict(data_class=Word, data=word) for word in parsed]
+    try:
+        parsed = json.loads(response)
+        return [dacite.from_dict(data_class=Word, data=word) for word in parsed]
+    except (DaciteError, JSONDecodeError):
+        raise StructuralError(response)
