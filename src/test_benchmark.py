@@ -65,6 +65,9 @@ class TestBenchmark(TestCase):
         content_error = ContentErrorCounter()
 
         size = 4
+        chunk_size = 1
+        prompt_tokens = 0
+        completion_tokens = 0
 
         for line in read_translation_data():
             sentence = line[0]
@@ -72,9 +75,12 @@ class TestBenchmark(TestCase):
 
             # perform request, parse response
             try:
-                response = get_literal_translation(sentence, 1)
+                response, tokens = get_literal_translation(sentence, chunk_size)
+                prompt_tokens += tokens[0]
+                completion_tokens += tokens[1]
+
                 self.assertEqual(len(response.words), len(sentence.split()))
-                logging.info(f"Response: {response}")
+                logging.info(f"Response: {response}, tokens: {tokens}")
             # catch errors, increment error counters
             except StructuralError as se:
                 struct_error.increment()
@@ -84,6 +90,12 @@ class TestBenchmark(TestCase):
                 content_error.increment()
                 logging.warning(f"Error with assertion: {ae} in response {response}")
                 continue
+
+        time.sleep(1)
+
+        print(f"Total prompt tokens: {prompt_tokens}")
+        print(f"Total completion tokens: {completion_tokens}")
+        print(f"Estimated costs: {(prompt_tokens * 0.003 + completion_tokens * 0.004) / 10}ct")
 
         self.evaluate(content_error, struct_error, size)
 

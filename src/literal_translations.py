@@ -34,19 +34,24 @@ class LiteralTranslation:
 
 
 @timed
-def get_literal_translation(sentence: str, chunk_size: int = 2) -> LiteralTranslation:
+def get_literal_translation(sentence: str, chunk_size: int = 2) -> (LiteralTranslation, (int, int)):
     chunks = chunk_sentence(sentence, chunk_size)
     literal_translation = LiteralTranslation()
+    prompt_tokens = 0
+    completion_tokens = 0
+
     # Create a ThreadPoolExecutor to process chunks concurrently
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(generate_literal_translation_for_chunk, sentence, chunk) for chunk in chunks]
 
         for future in concurrent.futures.as_completed(futures):
-            translation = future.result()
+            translation, tokens = future.result()
             for word in translation:
                 literal_translation.words.append(word)
+                prompt_tokens += tokens[0]
+                completion_tokens += tokens[1]
 
-    return literal_translation
+    return literal_translation, (prompt_tokens, completion_tokens)
 
 
 def chunk_sentence(sentence: str, chunk_size) -> list[list[str]]:
@@ -59,12 +64,12 @@ def chunk_sentence(sentence: str, chunk_size) -> list[list[str]]:
     return chunks
 
 
-def generate_literal_translation_for_chunk(sentence: str, chunk: list[str]) -> list[Word]:
+def generate_literal_translation_for_chunk(sentence: str, chunk: list[str]) -> (list[Word], int):
     messages = [Message(role=SYSTEM, content=SYSTEM_PROMPT),
                 Message(role=USER, content=
                 "Translate the word(s) '{}' in the context of the following sentence: '{}'.".format(chunk, sentence))]
     openai_response = exchange(messages)
-    return parse_response(openai_response.response)
+    return parse_response(openai_response.response), openai_response.tokens
 
 
 def parse_response(response: str) -> list[Word]:

@@ -9,7 +9,7 @@ from util.message import Message
 @dataclass
 class OpenAIResponse:
     response: str
-    tokens: int
+    tokens: (int, int)
 
 
 def exchange(messages: list[Message]) -> OpenAIResponse:
@@ -17,7 +17,7 @@ def exchange(messages: list[Message]) -> OpenAIResponse:
         model="gpt-3.5-turbo",
         messages=[message.as_dict() for message in messages]
     )
-    tokens = openai_response["usage"]["total_tokens"]
+    tokens = (openai_response["usage"]["prompt_tokens"], openai_response["usage"]["completion_tokens"])
     response = openai_response["choices"][0]["message"]["content"]
-    logging.debug(f"Received response: {response}")
+    logging.debug(f"Received response: {response}, {tokens} tokens")
     return OpenAIResponse(response=response, tokens=tokens)
