@@ -41,9 +41,8 @@ class TestBenchmark(TestCase):
             # extract data from tuples
             celebrity = dataset[0]
             prompt = dataset[1]
-            is_inappropriate = parse_bool(dataset[2])
+            is_inappropriate = parse_bool(dataset[3])
             logging.info(f"Celebrity: {celebrity}, prompt: {prompt}, inappropriate: {is_inappropriate}")
-
             # perform request, parse response
             try:
                 response = get_celebrities_response(celebrity, prompt)
