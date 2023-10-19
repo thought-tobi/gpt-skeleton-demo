@@ -25,7 +25,7 @@ USER_PROMPT = """Answer in the style of {} in maximum two sentences: {}"""
 @dataclass
 class Response:
     response: str
-    deny_answer: str
+    deny_answer: bool
 
     def as_dict(self) -> dict:
         return {"response": self.response, "deny_answer": self.deny_answer}
@@ -35,7 +35,7 @@ class Response:
 def get_celebrities_response(celebrity_name: str, prompt: str) -> Response:
     messages = [Message(role=SYSTEM, content=SYSTEM_PROMPT),
                 Message(role=USER, content=USER_PROMPT.format(celebrity_name, prompt))]
-    openai_response = openai_client.exchange(messages, "ft:gpt-3.5-turbo-0613:personal::8B1Q5tME")
+    openai_response = openai_client.exchange(messages, "ft:gpt-3.5-turbo-0613:personal::8B3jYYnB")
     return parse_response(openai_response.response)
 
 

@@ -20,7 +20,7 @@ def generate_finetuning_jsonl_from_csv():
         finetune_data = {"messages": [
             Message(role=SYSTEM, content=SYSTEM_PROMPT).as_dict(),
             Message(role=USER, content=f"Answer in the style of {celebrity}: {prompt}").as_dict(),
-            Message(role=ASSISTANT, content=str({
+            Message(role=ASSISTANT, content=json.dumps({
                 "deny_answer": is_inappropriate,
                 "response": response
             })).as_dict()]}

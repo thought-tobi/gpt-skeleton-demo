@@ -13,7 +13,7 @@ def create_file():
 
 
 def perform_finetuning():
-    openai.FineTuningJob.create(training_file="file-R8XqL9HJzcuP90YUscmECFJX", model="gpt-3.5-turbo")
+    return openai.FineTuningJob.create(training_file="file-DATNhZ6Odm3jGpTih6Zl0scM", model="gpt-3.5-turbo")
 
 
 def list_files():
