@@ -1,6 +1,7 @@
 import json
 
 from src.util.message import Message, USER, ASSISTANT, SYSTEM
+from src.util.util import parse_bool
 
 SYSTEM_PROMPT = """You answer user prompts in the style of celebrities as convincingly as possible.
 Provide your responses in valid JSON format. If you cannot answer for ethical or safety reasons or because it is not within your capabilities,
@@ -32,15 +33,6 @@ def write_finetuning_data_to_file():
         for dataset in generate_finetuning_jsonl_from_csv():
             finetuning_data.write(dataset)
             finetuning_data.write("\n")
-
-
-def parse_bool(string: str) -> bool:
-    if string.lower() == "true":
-        return True
-    elif string.lower() == "false":
-        return False
-    else:
-        raise ValueError(f"Cannot parse {string} to boolean")
 
 
 def read_training_data():

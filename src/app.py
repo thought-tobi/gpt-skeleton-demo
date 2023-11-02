@@ -5,7 +5,7 @@ import openai
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from celebrities import get_celebrities_response
+from celebrities import get_celebrities_response_finetuned
 from translation import get_translation_and_source_language
 
 # setup
@@ -24,7 +24,7 @@ def get_celebrity_response():
     celebrity_name = request.json['celebrity_name']
     prompt = request.json['prompt']
     logging.info(f"Getting response for prompt {prompt} in the style of {celebrity_name} ...")
-    return jsonify(get_celebrities_response(celebrity_name, prompt).as_dict()), 200
+    return jsonify(get_celebrities_response_finetuned(celebrity_name, prompt).as_dict()), 200
 
 
 @app.route('/translation', methods=['POST'])

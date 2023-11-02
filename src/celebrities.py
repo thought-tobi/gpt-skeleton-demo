@@ -19,7 +19,10 @@ set the deny_answer flag to true. Provide a response in the following structure:
 }
 """
 
-USER_PROMPT = """Answer in the style of {} in maximum two sentences: {}"""
+
+SYSTEM_PROMPT_STANDARD = """You answer user prompts in the style of celebrities as convincingly as possible."""
+
+USER_PROMPT = """Respond to the following prompt in the style of {}: {}"""
 
 
 @dataclass
@@ -32,11 +35,18 @@ class Response:
 
 
 @timed
-def get_celebrities_response(celebrity_name: str, prompt: str) -> Response:
+def get_celebrities_response_finetuned(celebrity_name: str, prompt: str) -> Response:
     messages = [Message(role=SYSTEM, content=SYSTEM_PROMPT),
                 Message(role=USER, content=USER_PROMPT.format(celebrity_name, prompt))]
     openai_response = openai_client.exchange(messages, "ft:gpt-3.5-turbo-0613:personal::8B3jYYnB")
     return parse_response(openai_response.response)
+
+
+def get_celebrities_response_standard(celebrity_name: str, prompt: str) -> Response:
+    messages = [Message(role=SYSTEM, content=SYSTEM_PROMPT_STANDARD),
+                Message(role=USER, content=USER_PROMPT.format(celebrity_name, prompt))]
+    openai_response = openai_client.exchange(messages)
+    return Response(openai_response.response, False)
 
 
 def parse_response(response: str) -> Response:
