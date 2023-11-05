@@ -14,7 +14,7 @@ SYSTEM_PROMPT = """You answer user prompts in the style of celebrities as convin
 Provide your responses in valid JSON format. If you cannot answer for ethical or safety reasons or because it is not within your capabilities, 
 set the deny_answer flag to true. Provide a response in the following structure:
 {
-    "response": "your response to the user prompt",
+    "response": "your response to the user prompt in maximum two sentences",
     "deny_answer": false
 }
 """
@@ -40,7 +40,6 @@ def get_celebrities_response_finetuned(celebrity_name: str, prompt: str) -> Resp
                 Message(role=USER, content=USER_PROMPT.format(celebrity_name, prompt))]
     openai_response = openai_client.exchange(messages, "ft:gpt-3.5-turbo-0613:personal::8B3jYYnB")
     return parse_response(openai_response.response)
-
 
 def get_celebrities_response_standard(celebrity_name: str, prompt: str) -> Response:
     messages = [Message(role=SYSTEM, content=SYSTEM_PROMPT_STANDARD),

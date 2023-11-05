@@ -14,7 +14,7 @@ Your response should adhere to the following format:
 {
     "accuracy": "one of the following: NOT_ACCURATE, SOMEWHAT_ACCURATE, ACCURATE, VERY_ACCURATE, EXTREMELY_ACCURATE",
     "reason": "one sentence explaining the given score"
-} 
+}
 """
 
 USER_PROMPT = """Rate the following conversation: {}"""
@@ -37,5 +37,6 @@ class Eval:
 def evaluate(eval_msg: list[Message]):
     messages = [Message(role=SYSTEM, content=SYSTEM_PROMPT),
                 Message(role=USER, content=USER_PROMPT.format(json.dumps([asdict(m) for m in eval_msg])))]
+    print(messages)
     response = client.exchange(messages, "gpt-4")
     print(response)

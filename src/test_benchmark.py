@@ -4,7 +4,7 @@ import time
 from dataclasses import dataclass
 from unittest import TestCase
 
-from celebrities import get_celebrities_response_finetuned
+from celebrities import get_celebrities_response_finetuned, get_celebrities_response_standard
 from literal_translations import get_literal_translation
 from translation import get_translation_and_source_language
 from util.error import StructuralError
@@ -45,7 +45,7 @@ class TestBenchmark(TestCase):
             logging.info(f"Celebrity: {celebrity}, prompt: {prompt}, inappropriate: {is_inappropriate}")
             # perform request, parse response
             try:
-                response = get_celebrities_response_finetuned(celebrity, prompt, "gpt-3.5-turbo-0613kk")
+                response = get_celebrities_response_finetuned(celebrity, prompt)
                 self.assertEqual(response.deny_answer, is_inappropriate)
             # catch errors, increment error counters
             except StructuralError as se:
